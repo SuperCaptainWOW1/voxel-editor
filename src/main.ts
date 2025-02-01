@@ -65,16 +65,26 @@ function start() {
     const hoveredObject = getHoveredObject(camera, gridElements);
 
     if (hoveredObject) {
-      const { x, y, z } = hoveredObject.position;
+      if (hoveredObject.name === "grid_element") {
+        previewVoxelElement.position.set(
+          hoveredObject.position.x,
+          hoveredObject.position.y,
+          hoveredObject.position.z
+        );
+      } else {
+        previewVoxelElement.position.set(
+          hoveredObject.position.x + hoveredObject.offset.x,
+          hoveredObject.position.y + hoveredObject.offset.y,
+          hoveredObject.position.z + hoveredObject.offset.z
+        );
+      }
 
-      previewVoxelElement.position.set(x, y, z);
       previewVoxelElement.material.visible = true;
 
       if (pointerDown) {
         throttledAddVoxel({
           scene,
           gridElements,
-          hoveredObject,
           previewVoxelElement,
         });
       }
@@ -173,12 +183,10 @@ function getHoveredObject(
 function addVoxel({
   scene,
   gridElements,
-  hoveredObject,
   previewVoxelElement,
 }: {
   scene: THREE.Scene;
   gridElements: THREE.Mesh[];
-  hoveredObject: HoveredObject;
   previewVoxelElement: THREE.Mesh;
 }) {
   const newVoxel = new THREE.Mesh(
@@ -192,19 +200,11 @@ function addVoxel({
     })
   );
 
-  if (hoveredObject.name === "grid_element") {
-    newVoxel.position.set(
-      previewVoxelElement.position.x,
-      previewVoxelElement.position.y,
-      previewVoxelElement.position.z
-    );
-  } else {
-    newVoxel.position.set(
-      previewVoxelElement.position.x + hoveredObject.offset.x,
-      previewVoxelElement.position.y + hoveredObject.offset.y,
-      previewVoxelElement.position.z + hoveredObject.offset.z
-    );
-  }
+  newVoxel.position.set(
+    previewVoxelElement.position.x,
+    previewVoxelElement.position.y,
+    previewVoxelElement.position.z
+  );
 
   scene.add(newVoxel);
   gridElements.push(newVoxel);
